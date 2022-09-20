@@ -133,4 +133,77 @@ int main(int argc, char* argv[])
     bool useCUDA{true};
     const char* useCUDAFlag = "--use_cuda";
     const char* useCPUFlag = "--use_cpu";
+    if (argc == 1)
+    {
+        useCUDA = false;
+    }
+    else if ((argc == 2) && (strcmp(argv[1], useCUDAFlag == 0)))
+    {
+        useCUDA = true;
+    }
+    else if ((argc == 2) && (strcmp(argv[1], useCPUFlag == 0)))
+    {
+        useCUDA = false;
+    }
+    else if ((argc == 2) && (strcmp(argv[1], useCUDAFlag) != 0))
+    {
+        useCUDA = false;
+    }
+    else
+    {
+        throw std::runtime_error{"Too many arguments."};
+    }
+
+    if (useCUDA)
+    {
+        std::cout << "Inference Execution Provider: CUDA" << std::endl;
+    }
+    else
+    {
+        std::cout << "Inference Execution Provider: CPU" << std::endl;
+    }
+
+    std::string instanceName{"image-classification-inference"};
+    // std::string modelFilepath{"../../data/models/squeezenet1.1-7.onnx"};
+    std::string modelFilepath{"../../data/models/resnet18-v1-7.onnx"};
+    std::string imageFilepath{
+        "../../data/images/european-bee-eater-2115564_1920.jpg"};
+    std::string labelFilepath{"../../data/labels/synset.txt"};
+
+    std::vector<std::string> labels{readLabels(labelFilepath)};
+
+    Ort::Env env(OrtLoggingLevel::ORT_LOGGING_LEVEL_WARNING,
+                 instanceName.c_str());
+    Ort::SessionOptions sessionOptions;
+    sessionOptions.SetIntraOpNumThreads(1);
+
+    if (useCUDA)
+    {
+        // Using CUDA backend
+        // https://github.com/microsoft/onnxruntime/blob/v1.8.2/include/onnxruntime/core/session/onnxruntime_cxx_api.h#L329
+        OrtCUDAProviderOptions cuda_options{};
+        sessionOptions.AppendExecutionProvider_CUDA(cuda_options);
+    }
+
+    // Sets graph optimization level
+    // Available levels are
+    // ORT_DISABLE_ALL -> To disable all optimizations
+    // ORT_ENABLE_BASIC -> To enable basic optimizations (Such as redundant node
+    // removals) ORT_ENABLE_EXTENDED -> To enable extended optimizations
+    // (Includes level 1 + more complex optimizations like node fusions)
+    // ORT_ENABLE_ALL -> To Enable All possible optimizations
+    sessionOptions.SetGraphOptimizationLevel(
+        GraphOptimizationLevel::ORT_ENABLE_EXTENDED);
+
+    Ort::Session session(env, modelFilepath.c_str(), sessionOptions);
+
+    Ort::AllocatorWithDefaultOptions allocator;
+
+    size_t numInputNodes = session.GetInputCount();
+    size_t numOutputNodes = session.GetOutputCount();
+
+    const char* inputName = session.GetInputName(0, allocator);
+
+    
+
 }
