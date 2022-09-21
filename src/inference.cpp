@@ -1,3 +1,6 @@
+
+// https://github.com/microsoft/onnxruntime/blob/v1.8.2/csharp/test/Microsoft.ML.OnnxRuntime.EndToEndTests.Capi/CXX_Api_Sample.cpp
+// https://github.com/microsoft/onnxruntime/blob/v1.8.2/include/onnxruntime/core/session/onnxruntime_cxx_api.h
 #include <onnxruntime_cxx_api.h>
 
 #include <opencv2/dnn/dnn.hpp>
@@ -27,7 +30,6 @@ T vectorProduct(const std::vector<T>& v)
  * @param v
  * @return std::ostream&
  */
-
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
 {
@@ -51,8 +53,8 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
  * @param type
  * @return std::ostream&
  */
-
-std::ostream& operator<<(std::ostream& os, const ONNXTensorElementDataType& type)
+std::ostream& operator<<(std::ostream& os,
+                         const ONNXTensorElementDataType& type)
 {
     switch (type)
     {
@@ -112,15 +114,15 @@ std::ostream& operator<<(std::ostream& os, const ONNXTensorElementDataType& type
             break;
     }
 
-    return os
+    return os;
 }
 
-std::vector<std::string> readLabels(std:string& labelFilepath)
+std::vector<std::string> readLabels(std::string& labelFilepath)
 {
     std::vector<std::string> labels;
     std::string line;
     std::ifstream fp(labelFilepath);
-    while(std::getline(fp, line))
+    while (std::getline(fp, line))
     {
         labels.push_back(line);
     }
@@ -137,11 +139,11 @@ int main(int argc, char* argv[])
     {
         useCUDA = false;
     }
-    else if ((argc == 2) && (strcmp(argv[1], useCUDAFlag == 0)))
+    else if ((argc == 2) && (strcmp(argv[1], useCUDAFlag) == 0))
     {
         useCUDA = true;
     }
-    else if ((argc == 2) && (strcmp(argv[1], useCPUFlag == 0)))
+    else if ((argc == 2) && (strcmp(argv[1], useCPUFlag) == 0))
     {
         useCUDA = false;
     }
@@ -176,7 +178,6 @@ int main(int argc, char* argv[])
                  instanceName.c_str());
     Ort::SessionOptions sessionOptions;
     sessionOptions.SetIntraOpNumThreads(1);
-
     if (useCUDA)
     {
         // Using CUDA backend
